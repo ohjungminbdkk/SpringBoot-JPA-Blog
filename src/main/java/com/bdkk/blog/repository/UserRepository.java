@@ -16,9 +16,6 @@ public interface UserRepository extends JpaRepository<User, Integer>{
 //기본 CRUD만하려면 이곳에 아무것도 적지 않아도 된다.
 	//SELECT * FROM user WHERE username =  1?;
 	Optional<User> findByUsername(String username);
-
-	
-	
 }
 // JPA naming 쿼리 전략
 // SELECT *FROM user WHERE username = ?1 AND password = ?2;

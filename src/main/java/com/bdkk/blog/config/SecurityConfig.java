@@ -3,6 +3,7 @@ package com.bdkk.blog.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,10 +20,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private PrincipalDetailService principalDetailService;
+
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
 	
-	@Bean // Ioc가 되요!!
+	@Bean // Ioc가 되요!! public BCryptPasswordEncoder encodePWD() {
 	public BCryptPasswordEncoder encodePWD() {
-		return new BCryptPasswordEncoder(); // 스프링이 관리하여 필요할떄마다 가져다 쓰면된다. Ioc!!
+		return new BCryptPasswordEncoder();// 스프링이 관리하여 필요할떄마다 가져다 쓰면된다. Ioc!!
 	}
 
 	// 시큐리티가 대신 로그인해주는데 password를 가로채기를 하는데
@@ -32,20 +39,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(principalDetailService).passwordEncoder(encodePWD());
 	}
-	
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()// csrf 토큰 비활성화 (테스트시 걸어두는게 좋음)
 				.authorizeRequests()
-				.antMatchers("/", "/auth/**", "/js/**", "/css/**", "/image/**").permitAll()
+				.antMatchers("/", "/auth/**", "/js/**", "/css/**", "/image/**", "/dummy/**") 
+				.permitAll()
 				.anyRequest()
 				.authenticated()
-			 .and()
+			.and()
 				.formLogin()
 				.loginPage("/auth/loginForm")
 				.loginProcessingUrl("/auth/loginProc")// 스프링 시큐리티가 해당 주소로 요청오는 로그인을 가로채서 대신 로그인해준다.
 				.defaultSuccessUrl("/");
-
 	}
-
 }
